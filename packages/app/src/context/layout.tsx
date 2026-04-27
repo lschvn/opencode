@@ -18,6 +18,7 @@ const DEFAULT_SIDEBAR_WIDTH = 344
 const DEFAULT_FILE_TREE_WIDTH = 200
 const DEFAULT_SESSION_WIDTH = 600
 const DEFAULT_TERMINAL_HEIGHT = 280
+const DEFAULT_BROWSER_WIDTH = 560
 export type AvatarColorKey = (typeof AVATAR_COLOR_KEYS)[number]
 
 export function getAvatarColors(key?: string) {
@@ -43,6 +44,7 @@ type SessionView = {
   reviewOpen?: string[]
   pendingMessage?: string
   pendingMessageAt?: number
+  browserOpened?: boolean
 }
 
 type TabHandoff = {
@@ -251,6 +253,9 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
         },
         session: {
           width: DEFAULT_SESSION_WIDTH,
+        },
+        browser: {
+          width: DEFAULT_BROWSER_WIDTH,
         },
         mobileSidebar: {
           opened: false,
@@ -660,6 +665,16 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
           setStore("session", "width", width)
         },
       },
+      browser: {
+        width: createMemo(() => store.browser?.width ?? DEFAULT_BROWSER_WIDTH),
+        resize(width: number) {
+          if (!store.browser) {
+            setStore("browser", { width })
+            return
+          }
+          setStore("browser", "width", width)
+        },
+      },
       mobileSidebar: {
         opened: createMemo(() => store.mobileSidebar?.opened ?? false),
         show() {
@@ -720,6 +735,7 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
         const s = createMemo(() => store.sessionView[key()] ?? { scroll: {} })
         const terminalOpened = createMemo(() => store.terminal?.opened ?? false)
         const reviewPanelOpened = createMemo(() => store.review?.panelOpened ?? true)
+        const browserOpened = createMemo(() => s().browserOpened ?? false)
 
         function setTerminalOpened(next: boolean) {
           const current = store.terminal
@@ -743,6 +759,18 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
           const value = current.panelOpened ?? true
           if (value === next) return
           setStore("review", "panelOpened", next)
+        }
+
+        function setBrowserOpened(next: boolean) {
+          const session = key()
+          const current = store.sessionView[session]
+          if (!current) {
+            setStore("sessionView", session, { scroll: {}, browserOpened: next })
+            return
+          }
+
+          if ((current.browserOpened ?? false) === next) return
+          setStore("sessionView", session, "browserOpened", next)
         }
 
         return {
@@ -774,6 +802,18 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
             },
             toggle() {
               setReviewPanelOpened(!reviewPanelOpened())
+            },
+          },
+          browser: {
+            opened: browserOpened,
+            open() {
+              setBrowserOpened(true)
+            },
+            close() {
+              setBrowserOpened(false)
+            },
+            toggle() {
+              setBrowserOpened(!browserOpened())
             },
           },
           review: {

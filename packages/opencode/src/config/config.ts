@@ -124,6 +124,28 @@ export const Info = Schema.Struct({
     description:
       "Control sharing behavior:'manual' allows manual sharing via commands, 'auto' enables automatic sharing, 'disabled' disables all sharing",
   }),
+  browser: Schema.optional(
+    Schema.Struct({
+      enabled: Schema.optional(Schema.Boolean).annotate({ description: "Enable the integrated browser" }),
+      provider: Schema.optional(Schema.Literal("local")).annotate({
+        description: "Browser automation provider. Only local Playwright/Chromium is currently supported.",
+      }),
+      headless: Schema.optional(Schema.Boolean).annotate({
+        description: "Run local Chromium headlessly. Defaults to true.",
+      }),
+      viewport: Schema.optional(
+        Schema.Struct({
+          width: PositiveInt,
+          height: PositiveInt,
+        }),
+      ).annotate({ description: "Default browser viewport size" }),
+      persist: Schema.optional(Schema.Boolean).annotate({
+        description: "Persist browser session data in the opencode cache directory. Defaults to true.",
+      }),
+      devtools: Schema.optional(Schema.Boolean).annotate({ description: "Open Chromium devtools when supported" }),
+      timeoutMs: Schema.optional(PositiveInt).annotate({ description: "Default browser navigation timeout" }),
+    }),
+  ).annotate({ description: "Integrated browser configuration" }),
   autoshare: Schema.optional(Schema.Boolean).annotate({
     description: "@deprecated Use 'share' field instead. Share newly created sessions automatically",
   }),

@@ -450,6 +450,26 @@ export function SessionHeader() {
                 </Show>
 
                 <div class="hidden md:flex items-center gap-1 shrink-0">
+                  <Tooltip value="Toggle browser">
+                    <Button
+                      variant="ghost"
+                      class="titlebar-icon w-8 h-6 p-0 box-border"
+                      onClick={() => view().browser.toggle()}
+                      aria-label="Toggle browser"
+                      aria-expanded={view().browser.opened()}
+                      aria-controls="browser-panel"
+                    >
+                      <Icon
+                        size="small"
+                        name="window-cursor"
+                        classList={{
+                          "text-icon-strong": view().browser.opened(),
+                          "text-icon-weak": !view().browser.opened(),
+                        }}
+                      />
+                    </Button>
+                  </Tooltip>
+
                   <TooltipKeybind
                     title={language.t("command.review.toggle")}
                     keybind={command.keybind("review.toggle")}

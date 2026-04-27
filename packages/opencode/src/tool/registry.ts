@@ -12,6 +12,19 @@ import { WebFetchTool } from "./webfetch"
 import { WriteTool } from "./write"
 import { InvalidTool } from "./invalid"
 import { SkillTool } from "./skill"
+import {
+  BrowserActTool,
+  BrowserCloseTool,
+  BrowserConsoleTool,
+  BrowserEvalTool,
+  BrowserExtractTool,
+  BrowserNetworkTool,
+  BrowserObserveTool,
+  BrowserOpenTool,
+  BrowserResizeTool,
+  BrowserScreenshotTool,
+  BrowserStateTool,
+} from "./browser"
 import * as Tool from "./tool"
 import { Config } from "../config"
 import { type ToolContext as PluginToolContext, type ToolDefinition } from "@opencode-ai/plugin"
@@ -47,6 +60,7 @@ import { Bus } from "../bus"
 import { Agent } from "../agent/agent"
 import { Skill } from "../skill"
 import { Permission } from "@/permission"
+import { BrowserService } from "@/browser"
 
 const log = Log.create({ service: "tool.registry" })
 
@@ -89,6 +103,7 @@ export const layer: Layer.Layer<
   | Ripgrep.Service
   | Format.Service
   | Truncate.Service
+  | BrowserService.Service
 > = Layer.effect(
   Service,
   Effect.gen(function* () {
@@ -115,6 +130,17 @@ export const layer: Layer.Layer<
     const greptool = yield* GrepTool
     const patchtool = yield* ApplyPatchTool
     const skilltool = yield* SkillTool
+    const browserOpen = yield* BrowserOpenTool
+    const browserAct = yield* BrowserActTool
+    const browserObserve = yield* BrowserObserveTool
+    const browserExtract = yield* BrowserExtractTool
+    const browserScreenshot = yield* BrowserScreenshotTool
+    const browserState = yield* BrowserStateTool
+    const browserConsole = yield* BrowserConsoleTool
+    const browserNetwork = yield* BrowserNetworkTool
+    const browserResize = yield* BrowserResizeTool
+    const browserEval = yield* BrowserEvalTool
+    const browserClose = yield* BrowserCloseTool
     const agent = yield* Agent.Service
 
     const state = yield* InstanceState.make<State>(
@@ -204,6 +230,17 @@ export const layer: Layer.Layer<
           question: Tool.init(question),
           lsp: Tool.init(lsptool),
           plan: Tool.init(plan),
+          browserOpen: Tool.init(browserOpen),
+          browserAct: Tool.init(browserAct),
+          browserObserve: Tool.init(browserObserve),
+          browserExtract: Tool.init(browserExtract),
+          browserScreenshot: Tool.init(browserScreenshot),
+          browserState: Tool.init(browserState),
+          browserConsole: Tool.init(browserConsole),
+          browserNetwork: Tool.init(browserNetwork),
+          browserResize: Tool.init(browserResize),
+          browserEval: Tool.init(browserEval),
+          browserClose: Tool.init(browserClose),
         })
 
         return {
@@ -224,6 +261,17 @@ export const layer: Layer.Layer<
             tool.code,
             tool.skill,
             tool.patch,
+            tool.browserOpen,
+            tool.browserAct,
+            tool.browserObserve,
+            tool.browserExtract,
+            tool.browserScreenshot,
+            tool.browserState,
+            tool.browserConsole,
+            tool.browserNetwork,
+            tool.browserResize,
+            tool.browserEval,
+            tool.browserClose,
             ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [tool.lsp] : []),
             ...(Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE && Flag.OPENCODE_CLIENT === "cli" ? [tool.plan] : []),
           ],
@@ -345,5 +393,6 @@ export const defaultLayer = Layer.suspend(() =>
     Layer.provide(CrossSpawnSpawner.defaultLayer),
     Layer.provide(Ripgrep.defaultLayer),
     Layer.provide(Truncate.defaultLayer),
+    Layer.provide(BrowserService.defaultLayer),
   ),
 )

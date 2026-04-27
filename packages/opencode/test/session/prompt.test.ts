@@ -7,6 +7,7 @@ import { fileURLToPath } from "url"
 import { NamedError } from "@opencode-ai/core/util/error"
 import { Agent as AgentSvc } from "../../src/agent/agent"
 import { Bus } from "../../src/bus"
+import { BrowserService } from "../../src/browser"
 import { Command } from "../../src/command"
 import { Config } from "../../src/config"
 import { LSP } from "../../src/lsp"
@@ -177,6 +178,7 @@ function makeHttp() {
     Layer.provide(CrossSpawnSpawner.defaultLayer),
     Layer.provide(Ripgrep.defaultLayer),
     Layer.provide(Format.defaultLayer),
+    Layer.provide(BrowserService.defaultLayer),
     Layer.provideMerge(todo),
     Layer.provideMerge(question),
     Layer.provideMerge(deps),
